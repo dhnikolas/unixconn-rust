@@ -115,23 +115,15 @@ mod tests {
     use super::*;
 
     fn run_client() -> Result<(), Box<dyn Error>> {
-        // Создаем нового клиента
         let mut client = Client::new("/tmp/unixconntest.sock")?;
-
-        // Подготавливаем данные для отправки
         let method_name = "create";
         let request_body = b"Hello, server!";
 
-        // Отправляем запрос и получаем ответ
         let response = client.do_request(method_name, request_body)?;
-
-        // Конвертируем ответ в строку и выводим
         match std::str::from_utf8(&response) {
             Ok(s) => println!("Received response: {}", s),
             Err(e) => eprintln!("Response was not valid UTF-8: {}", e),
         }
-
-        // Закрываем соединение
         client.close()?;
 
         Ok(())
