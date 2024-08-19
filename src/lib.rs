@@ -115,9 +115,9 @@ mod tests {
     use super::*;
 
     fn run_client() -> Result<(), Box<dyn Error>> {
-        let mut client = Client::new("/tmp/unixconntest.sock")?;
-        let method_name = "create";
-        let request_body = b"Hello, server!";
+        let mut client = Client::new("/tmp/salt-ssd.sock")?;
+        let method_name = "getnssusers";
+        let request_body = b"";
 
         let response = client.do_request(method_name, request_body)?;
         match std::str::from_utf8(&response) {
