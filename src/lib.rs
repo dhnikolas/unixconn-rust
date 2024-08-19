@@ -4,6 +4,7 @@ use std::io::{self, Read, Write, BufReader};
 use std::error::Error;
 use bytes::{Bytes, BytesMut, BufMut};
 use uuid::Uuid;
+use std::time::Duration;
 
 const PROTOCOL_FIELDS: usize = 4;
 
@@ -24,12 +25,13 @@ struct Message {
 
 pub struct Client {
     conn: UnixStream,
+    timeout: u64
 }
 
 impl Client {
-    pub fn new(address: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn new(address: &str, timeout: u64) -> Result<Self, Box<dyn Error>> {
         let conn = UnixStream::connect(address)?;
-        Ok(Client { conn })
+        Ok(Client { conn, timeout })
     }
 
     pub fn close(&self) -> io::Result<()> {
@@ -47,6 +49,7 @@ impl Client {
 
         let raw_request = message_to_bytes(&request);
         self.conn.write_all(&raw_request)?;
+        self.conn.set_read_timeout(Some(Duration::from_secs(self.timeout)))?;
 
         let mut reader = BufReader::new(&self.conn);
         let message = read_message(&mut reader)?;
@@ -115,7 +118,7 @@ mod tests {
     use super::*;
 
     fn run_client() -> Result<(), Box<dyn Error>> {
-        let mut client = Client::new("/tmp/salt-ssd.sock")?;
+        let mut client = Client::new("/tmp/salt-ssd.sock", 10)?;
         let method_name = "getnssusers";
         let request_body = b"";
 
