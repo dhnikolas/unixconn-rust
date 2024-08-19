@@ -22,21 +22,21 @@ struct Message {
     error: String,
 }
 
-struct Client {
+pub struct Client {
     conn: UnixStream,
 }
 
 impl Client {
-    fn new(address: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn new(address: &str) -> Result<Self, Box<dyn Error>> {
         let conn = UnixStream::connect(address)?;
         Ok(Client { conn })
     }
 
-    fn close(&self) -> io::Result<()> {
+    pub fn close(&self) -> io::Result<()> {
         self.conn.shutdown(std::net::Shutdown::Both)
     }
 
-    fn do_request(&mut self, method_name: &str, request_body: &[u8]) -> Result<Bytes, Box<dyn Error>> {
+    pub fn do_request(&mut self, method_name: &str, request_body: &[u8]) -> Result<Bytes, Box<dyn Error>> {
         let request_id = Uuid::new_v4().to_string();
         let request = Message {
             request_id: request_id.clone(),
